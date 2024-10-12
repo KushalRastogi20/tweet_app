@@ -1,76 +1,69 @@
-"use client"
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import styles from "../page.module.css"; // Import your CSS module
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  });
-
-  const { name, email, password } = formData;
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  const onChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const onSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    
-    if (!name || !email || !password) {
-      setError('All fields are required.');
-      return;
-    }
 
     try {
-      const res = await fetch('http://localhost:5000/auth/register', {
-        method: 'POST',
+      const res = await fetch("http://localhost:5000/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password }),
       });
 
-      const data = await res.json();
-
-      if (res.status === 201) {
-        setSuccess(data.message);
-        setTimeout(() => {
-          router.push('/login'); // Redirect to login page after successful registration
-        }, 2000);
+      if (res.status === 200) {
+        const { token } = await res.json();
+        localStorage.setItem("token", token); // Store the token in localStorage
+        router.push("/profile"); // Redirect to profile after registration
       } else {
-        setError(data.message || 'Error registering user');
+        setError("Registration failed. Please try again.");
       }
     } catch (error) {
-      setError('Something went wrong');
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
-    <div className="register-container">
-      <h2>Register</h2>
-      <form onSubmit={onSubmit}>
-        <div>
-          <label>Name:</label>
-          <input type="text" name="name" value={name} onChange={onChange} required />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input type="email" name="email" value={email} onChange={onChange} required />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input type="password" name="password" value={password} onChange={onChange} required />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
-        <button type="submit">Register</button>
+    <div className={styles.registerWrapper}>
+      <h2 className={styles.registerTitle}>Register</h2>
+      {error && <p className={styles.registerError}>{error}</p>}
+      <form className={styles.registerForm} onSubmit={handleRegister}>
+        <input
+          className={styles.registerInput}
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <input
+          className={styles.registerInput}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          className={styles.registerInput}
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button className={styles.registerButton} type="submit">Register</button>
       </form>
     </div>
   );

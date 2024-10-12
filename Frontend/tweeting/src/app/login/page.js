@@ -1,74 +1,60 @@
-"use client"
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import styles from "../page.module.css"; // Import your CSS module
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-
-  const { email, password } = formData;
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  const onChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const onSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (!email || !password) {
-      setError('All fields are required.');
-      return;
-    }
 
     try {
-      const res = await fetch('http://localhost:5000/auth/login', {
-        method: 'POST',
+      const res = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
-
       if (res.status === 200) {
-        // Store the JWT token in localStorage (or any secure storage)
-        localStorage.setItem('token', data.token);
-        setSuccess('Login successful!');
-        
-        setTimeout(() => {
-          router.push('/dashboard'); // Redirect to dashboard after login
-        }, 2000);
+        const { token } = await res.json();
+        localStorage.setItem("token", token); // Store the token in localStorage
+        router.push("/profile"); // Redirect to profile after login
       } else {
-        setError(data.message || 'Invalid login credentials');
+        setError("Login failed. Please check your credentials.");
       }
     } catch (error) {
-      setError('Something went wrong');
+      setError("An error occurred. Please try again.");
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
-      <form onSubmit={onSubmit}>
-        <div>
-          <label>Email:</label>
-          <input type="email" name="email" value={email} onChange={onChange} required />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input type="password" name="password" value={password} onChange={onChange} required />
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
-        <button type="submit">Login</button>
+    <div className={styles.loginWrapper}>
+      <h2 className={styles.loginTitle}>Login</h2>
+      {error && <p className={styles.loginError}>{error}</p>}
+      <form className={styles.loginForm} onSubmit={handleLogin}>
+        <input
+          className={styles.loginInput}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          className={styles.loginInput}
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button className={styles.loginButton} type="submit">Login</button>
       </form>
     </div>
   );
