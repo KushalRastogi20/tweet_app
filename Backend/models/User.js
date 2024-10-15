@@ -15,6 +15,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  username: {
+    type: String,
+    
+  },
+  image: {
+    type: String,
+  },
 });
 const User = mongoose.model("User", userSchema);
 export default User;

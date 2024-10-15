@@ -1,7 +1,7 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import styles from "../page.module.css"; // Importing CSS module styles
+import { useRouter } from "next/navigation";
+import styles from "../page.module.css";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -13,9 +13,10 @@ const Profile = () => {
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");
+      return;
     }
 
-    const fetchData = async () => {
+    const fetchUser = async () => {
       try {
         const res = await fetch("http://localhost:5000/auth/userProfile", {
           method: "GET",
@@ -27,7 +28,7 @@ const Profile = () => {
           const data = await res.json();
           setUser(data);
         } else {
-          setError("Failed to load data");
+          setError("Failed to load profile");
           router.push("/login");
         }
       } catch (error) {
@@ -37,33 +38,55 @@ const Profile = () => {
       }
     };
 
-    fetchData();
+    fetchUser();
   }, [router]);
 
-  if (loading) return <div className={styles.loading}>Loading...</div>;
-  if (error) return <div className={styles.error}>{error}</div>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-  <main className={styles.profilebody}>
     <div className={styles.profileContainer}>
-      <h2 className={styles.h2}>Profile Page</h2>
+      <h2>Profile Page</h2>
       {user && (
-        <div className={styles.profileDetails}>
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
+        <div className={styles.profileContent}>
+          <div className={styles.profileImageContainer}>
+            <img
+              src={`http://localhost:5000/${user.image}`} // Ensure this links correctly
+              alt="Profile"
+              className={styles.profileImage}
+            />
+          </div>
+          <div className={styles.profileDetails}>
+            <p><strong>Name:</strong> {user.name}</p>
+            {user.username ? (
+              <>
+                <p><strong>Username:</strong> {user.username}</p>
+              </>
+            ) : (
+              <>
+                <p>Your profile is incomplete!</p>
+                <button
+                  onClick={() => {
+                    router.push("/completeProfile");
+                  }}
+                >
+                  Complete Profile
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
       <button
-        className={styles.logoutButton}
         onClick={() => {
           localStorage.removeItem("token");
           router.push("/login");
         }}
+        className={styles.logoutButton}
       >
         Logout
       </button>
     </div>
-    </main>
   );
 };
 

@@ -139,34 +139,59 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   height: 100vh;
-  background: linear-gradient(to bottom, black, #8B0000); /* Black to Wine Gradient */
-  color: white;
+  background: linear-gradient(to bottom, black, #8B0000); 
+  justify-content: center;
   padding: 20px;
 }
 
-.profileTitle {
-  font-size: 36px;
-  margin-bottom: 20px;
+.profileContent {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to bottom, rgb(248, 232, 232), #160f0f); 
+  justify-content: center;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 800px;
+}
+.profileContainer h2{
+  
+  color: antiquewhite;
 }
 
-.profileDetail {
-  font-size: 20px;
-  margin: 10px 0;
+.profileImageContainer {
+  flex-shrink: 0;
+  margin-right: 20px;
+}
+
+.profileImage {
+  width: 5rem;
+  height: 50rem;
+  border-radius: 20%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profileDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.profileDetails p {
+  margin: 5px 0;
 }
 
 .logoutButton {
-  padding: 12px 20px;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #241c0a;
+  color: white;
   border: none;
   border-radius: 5px;
-  background-color: #8B0000; /* Wine Color */
-  color: white;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
 }
 
 .logoutButton:hover {
-  background-color: #a52a2a; /* Darker shade for hover effect */
+  background-color: #3a3935;
 }
