@@ -72,11 +72,19 @@ const Profile = () => {
                 >
                   Complete Profile
                 </button>
+              
               </>
             )}
           </div>
         </div>
       )}
+        <button
+                  onClick={() => {
+                    router.push("/editProfile");
+                  }}
+                >
+                  Edit Profile
+                </button>
       <button
         onClick={() => {
           localStorage.removeItem("token");
@@ -86,6 +94,7 @@ const Profile = () => {
       >
         Logout
       </button>
+
     </div>
   );
 };

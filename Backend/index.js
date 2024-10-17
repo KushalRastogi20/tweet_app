@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
 import router from "./routes/auth.js";
+import Tweet from "./models/Tweet.js";
 dotenv.config();
 const app = express();
 const PORT = 5000;
@@ -19,7 +20,25 @@ mongoose
   })
   .then(() => console.log("Mongo connected"))
   .catch((err) => console.log(err));
+app.post("/tweet", async (req, res) => {
+  const { user, content } = req.body;
+  try {
+    const newTweet = new Tweet(user, content);
+    await newTweet.save();
+    return res.status(200).json(newTweet);
+  } catch (error) {
+    return res.status(500).json({ message: "Error posting" });
+  }
+});
 
+app.get("/tweets", async (req, res) => {
+  try {
+    const tweets = await Tweet.find().sort({ createdAt: -1 });
+    return res.status(200).json(tweets);
+  } catch (error) {
+    return res.status(500).json({ message: "error fetching", error });
+  }
+});
 app.get("/", (req, res) => {
   res.send("Srever is running");
 });

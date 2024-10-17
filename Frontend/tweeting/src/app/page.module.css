@@ -1,5 +1,3 @@
-
-
 /* Home Page */
 .homeContainer {
   display: flex;
@@ -11,17 +9,21 @@
   color: white;
   text-align: center;
   padding: 20px;
+  font-family: 'Arial', sans-serif;
 }
 
 .homeTitle {
   font-size: 48px;
   margin-bottom: 20px;
   font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .homeSubtitle {
   font-size: 24px;
   margin-bottom: 40px;
+  opacity: 0.9;
 }
 
 .buttonContainer {
@@ -37,15 +39,17 @@
   color: white;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .homeButton:hover {
   background-color: #a52a2a; /* Darker shade for hover effect */
+  transform: translateY(-3px);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Login Page */
-.loginContainer {
+.loginContainer, .registerContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,27 +58,34 @@
   background: linear-gradient(to bottom, black, #8B0000); /* Black to Wine Gradient */
   color: white;
   padding: 20px;
+  font-family: 'Arial', sans-serif;
 }
 
-.loginTitle {
+.loginTitle, .registerTitle {
   font-size: 36px;
   margin-bottom: 20px;
+  text-transform: uppercase;
 }
 
-.loginError {
+.loginError, .registerError {
   color: red;
   margin-bottom: 10px;
+  font-size: 14px;
 }
 
-.loginInput {
-  padding: 10px;
+.loginInput, .registerInput {
+  padding: 12px;
   margin: 10px 0;
   border-radius: 5px;
   border: none;
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 16px;
 }
 
-.loginButton {
+.loginButton, .registerButton {
   padding: 12px 20px;
   border: none;
   border-radius: 5px;
@@ -82,56 +93,13 @@
   color: white;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.loginButton:hover {
+.loginButton:hover, .registerButton:hover {
   background-color: #a52a2a; /* Darker shade for hover effect */
-}
-
-/* Register Page */
-.registerContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: linear-gradient(to bottom, black, #8B0000); /* Black to Wine Gradient */
-  color: white;
-  padding: 20px;
-}
-
-.registerTitle {
-  font-size: 36px;
-  margin-bottom: 20px;
-}
-
-.registerError {
-  color: red;
-  margin-bottom: 10px;
-}
-
-.registerInput {
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 5px;
-  border: none;
-  width: 300px;
-}
-
-.registerButton {
-  padding: 12px 20px;
-  border: none;
-  border-radius: 5px;
-  background-color: #8B0000; /* Wine Color */
-  color: white;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-
-.registerButton:hover {
-  background-color: #a52a2a; /* Darker shade for hover effect */
+  transform: translateY(-3px);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Profile Page */
@@ -143,6 +111,7 @@
   background: linear-gradient(to bottom, black, #8B0000); 
   justify-content: center;
   padding: 20px;
+  font-family: 'Arial', sans-serif;
 }
 
 .profileContent {
@@ -152,13 +121,14 @@
   justify-content: center;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 80%;
   max-width: 800px;
 }
-.profileContainer h2{
-  
+
+.profileContainer h2 {
   color: antiquewhite;
+  text-transform: uppercase;
 }
 
 .profileImageContainer {
@@ -167,9 +137,9 @@
 }
 
 .profileImage {
-  width: 5rem;
-  height: 50rem;
-  border-radius: 20%;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -180,18 +150,163 @@
 
 .profileDetails p {
   margin: 5px 0;
+  color: white;
+  font-size: 18px;
 }
 
 .logoutButton {
   margin-top: 20px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   background-color: #241c0a;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .logoutButton:hover {
   background-color: #3a3935;
+  transform: translateY(-3px);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Feed */
+.feedContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  height: 100vh;
+  padding: 20px;
+  background: linear-gradient(to bottom, black, #8B0000);
+  font-family: 'Arial', sans-serif;
+}
+
+.userProfile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px;
+  color: white;
+}
+
+.userImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  border: 2px solid white;
+}
+
+.username {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.navbar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  width: 220px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.navbar h3 {
+  color: white;
+  margin: 5px 0;
+  cursor: pointer;
+  transition: color 0.3s, transform 0.2s;
+}
+
+.navbar h3:hover {
+  color: #FFD700;
+  transform: translateX(5px);
+}
+
+.mainContent {
+  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  overflow-y: auto;
+  height: 95vh;
+}
+
+.tweetForm {
+  margin-bottom: 20px;
+}
+
+.textarea {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tweetButton {
+  background: #1DA1F2;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.tweetButton:hover {
+  background-color: #0c85d0;
+  transform: translateY(-3px);
+}
+
+.tweetsContainer {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.tweet {
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tweet:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.tweetContent {
+  color: white;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.tweetDate {
+  color: lightgray;
+  font-size: 0.8em;
+}
+
+.noTweets {
+  color: white;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+.loading, .error {
+  color: white;
+  text-align: center;
+  font-size: 18px;
 }
