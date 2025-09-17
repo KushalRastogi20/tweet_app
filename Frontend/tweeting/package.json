@@ -9,7 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "framer-motion": "^12.23.12",
+    "axios": "^1.11.0",
+    "bcryptjs": "^3.0.2",
+    "framer-motion": "^12.23.13",
+    "jose": "^6.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.1",
     "next": "^15.5.2",
     "react": "^18",
     "react-dom": "^18"

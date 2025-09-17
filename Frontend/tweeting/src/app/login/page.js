@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-
+import api from "@/utils/axios";
+import { verifyJWt } from "@/middleware/auth";
 const AuthPage = () => {
   // State Management
   const [isLogin, setIsLogin] = useState(true);
@@ -46,16 +47,16 @@ const AuthPage = () => {
 
   // Data Arrays
   const countries = [
-    "United States", "Canada", "United Kingdom", "Australia", "Germany", 
-    "France", "Japan", "South Korea", "Singapore", "Netherlands", "Sweden", 
-    "Norway", "Denmark", "Switzerland", "New Zealand", "India", "Brazil", 
+    "United States", "Canada", "United Kingdom", "Australia", "Germany",
+    "France", "Japan", "South Korea", "Singapore", "Netherlands", "Sweden",
+    "Norway", "Denmark", "Switzerland", "New Zealand", "India", "Brazil",
     "Mexico", "Italy", "Spain", "Other"
   ];
 
   const occupations = [
-    "Software Engineer", "Designer", "Product Manager", "Marketing Specialist", 
-    "Data Scientist", "Teacher", "Doctor", "Lawyer", "Entrepreneur", "Student", 
-    "Consultant", "Sales Representative", "Writer", "Artist", "Photographer", 
+    "Software Engineer", "Designer", "Product Manager", "Marketing Specialist",
+    "Data Scientist", "Teacher", "Doctor", "Lawyer", "Entrepreneur", "Student",
+    "Consultant", "Sales Representative", "Writer", "Artist", "Photographer",
     "Musician", "Chef", "Architect", "Engineer", "Other"
   ];
 
@@ -107,8 +108,20 @@ const AuthPage = () => {
 
   // Effects and Lifecycle
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await api.get("/auth");
+        const data = await response.data;
+        if (data.isAuth) {
+          router.push("/feed")
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      }
+    }
+    checkAuth();
     setMounted(true);
-    
+
     // Time updater
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
@@ -126,7 +139,7 @@ const AuthPage = () => {
         y: (e.clientY / window.innerHeight) * 100
       });
     };
-    
+
     window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
@@ -154,27 +167,27 @@ const AuthPage = () => {
   // Form validation
   useEffect(() => {
     const errors = {};
-    
+
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       errors.email = "Invalid email format";
     }
-    
+
     if (password && password.length < 8) {
       errors.password = "Password must be at least 8 characters";
     }
-    
+
     if (!isLogin && password && confirmPassword && password !== confirmPassword) {
       errors.confirmPassword = "Passwords do not match";
     }
-    
+
     if (!isLogin && firstName && firstName.length < 2) {
       errors.firstName = "First name must be at least 2 characters";
     }
-    
+
     if (!isLogin && lastName && lastName.length < 2) {
       errors.lastName = "Last name must be at least 2 characters";
     }
-    
+
     if (!isLogin && username && username.length < 3) {
       errors.username = "Username must be at least 3 characters";
     }
@@ -253,7 +266,7 @@ const AuthPage = () => {
   // Form Handlers
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     if (!isFormValid) {
       setError("Please fix the form errors before submitting");
       return;
@@ -266,26 +279,27 @@ const AuthPage = () => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      const response = await fetch("http://localhost:5000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await api.post("/user/login",
+        {
+          email,
+          password
         },
-        body: JSON.stringify({ 
-          email, 
-          password,
-          rememberMe 
-        }),
-      });
+
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.status === 200) {
-        const { token, user } = await response.json();
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        
+        // const { token, user } = await response.json();
+        // localStorage.setItem("token", token);
+        // localStorage.setItem("user", JSON.stringify(user));
+
         setSuccess("Welcome back! Redirecting to your dashboard...");
         setShowSuccessModal(true);
-        
+
         setTimeout(() => {
           router.push("/feed");
         }, 2000);
@@ -303,16 +317,16 @@ const AuthPage = () => {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    
+
     if (!isFormValid) {
       setError("Please fix the form errors before submitting");
       return;
     }
 
-    if (!acceptTerms) {
-      setError("You must accept the Terms of Service to continue");
-      return;
-    }
+    // if (!acceptTerms) {
+    //   setError("You must accept the Terms of Service to continue");
+    //   return;
+    // }
 
     setIsLoading(true);
     setError("");
@@ -335,20 +349,40 @@ const AuthPage = () => {
       formData.append('occupation', occupation);
       formData.append('bio', bio);
       formData.append('acceptMarketing', acceptMarketing);
-      
+
       if (profilePicture) {
         formData.append('profilePicture', profilePicture);
       }
 
-      const response = await fetch("http://localhost:5000/auth/signup", {
-        method: "POST",
-        body: formData,
-      });
+      // const response = await fetch("/api/user/register", {
+      //   method: "POST",
+      //   body: formData,
+      // });
+      const response = await api.post("/user/register",
+        {
+          email,
+          password,
+
+          firstName,
+          lastName,
+          username,
+          phoneNumber,
+          dateOfBirth,
+          gender,
+          country,
+          city,
+          occupation,
+          bio,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      )
 
       if (response.status === 201) {
         setSuccess("Account created successfully! Please check your email to verify your account.");
         setShowSuccessModal(true);
-        
+
         // Reset form
         setEmail("");
         setPassword("");
@@ -366,7 +400,7 @@ const AuthPage = () => {
         setProfilePicture(null);
         setAcceptTerms(false);
         setAcceptMarketing(false);
-        
+
         setTimeout(() => {
           setIsLogin(true);
           setCurrentStep(1);
@@ -379,17 +413,18 @@ const AuthPage = () => {
       console.error("Signup error:", error);
       setError("Connection error. Please check your internet and try again.");
     } finally {
+      router.push("/feed");
       setIsLoading(false);
     }
   };
 
   const handleSocialLogin = async (provider) => {
     setSocialLoading(provider);
-    
+
     try {
       // Simulate social login delay
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       setSuccess(`${provider} login successful! Redirecting...`);
       setTimeout(() => {
         router.push("/feed");
@@ -408,12 +443,12 @@ const AuthPage = () => {
         setError("File size must be less than 5MB");
         return;
       }
-      
+
       if (!file.type.startsWith('image/')) {
         setError("Please upload an image file");
         return;
       }
-      
+
       setProfilePicture(file);
     }
   };
@@ -450,16 +485,15 @@ const AuthPage = () => {
                   value={firstName}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
                   onFocus={() => setFocusedField('firstName')}
-                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${
-                    formErrors.firstName ? 'border-red-300' : 'border-slate-300'
-                  }`}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${formErrors.firstName ? 'border-red-300' : 'border-slate-300'
+                    }`}
                   required
                 />
                 {formErrors.firstName && (
                   <p className="text-xs text-red-600">{formErrors.firstName}</p>
                 )}
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Last Name *</label>
                 <input
@@ -468,9 +502,8 @@ const AuthPage = () => {
                   value={lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
                   onFocus={() => setFocusedField('lastName')}
-                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${
-                    formErrors.lastName ? 'border-red-300' : 'border-slate-300'
-                  }`}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${formErrors.lastName ? 'border-red-300' : 'border-slate-300'
+                    }`}
                   required
                 />
                 {formErrors.lastName && (
@@ -487,9 +520,8 @@ const AuthPage = () => {
                 value={username}
                 onChange={(e) => handleInputChange('username', e.target.value.toLowerCase())}
                 onFocus={() => setFocusedField('username')}
-                className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${
-                  formErrors.username ? 'border-red-300' : 'border-slate-300'
-                }`}
+                className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${formErrors.username ? 'border-red-300' : 'border-slate-300'
+                  }`}
                 required
               />
               {formErrors.username && (
@@ -505,9 +537,8 @@ const AuthPage = () => {
                 value={email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
                 onFocus={() => setFocusedField('email')}
-                className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${
-                  formErrors.email ? 'border-red-300' : 'border-slate-300'
-                }`}
+                className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${formErrors.email ? 'border-red-300' : 'border-slate-300'
+                  }`}
                 required
               />
               {formErrors.email && (
@@ -559,9 +590,8 @@ const AuthPage = () => {
                   value={password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
                   onFocus={() => setFocusedField('password')}
-                  className={`w-full px-4 py-3 pr-12 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${
-                    formErrors.password ? 'border-red-300' : 'border-slate-300'
-                  }`}
+                  className={`w-full px-4 py-3 pr-12 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${formErrors.password ? 'border-red-300' : 'border-slate-300'
+                    }`}
                   required
                 />
                 <button
@@ -572,7 +602,7 @@ const AuthPage = () => {
                   {showPassword ? "🙈" : "👁️"}
                 </button>
               </div>
-              
+
               {password && (
                 <div className="mt-2">
                   <div className="flex justify-between text-xs text-slate-600 mb-1">
@@ -587,7 +617,7 @@ const AuthPage = () => {
                   </div>
                 </div>
               )}
-              
+
               {formErrors.password && (
                 <p className="text-xs text-red-600">{formErrors.password}</p>
               )}
@@ -602,9 +632,8 @@ const AuthPage = () => {
                   value={confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                   onFocus={() => setFocusedField('confirmPassword')}
-                  className={`w-full px-4 py-3 pr-12 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${
-                    formErrors.confirmPassword ? 'border-red-300' : 'border-slate-300'
-                  }`}
+                  className={`w-full px-4 py-3 pr-12 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${formErrors.confirmPassword ? 'border-red-300' : 'border-slate-300'
+                    }`}
                   required
                 />
                 <button
@@ -817,7 +846,7 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex relative overflow-hidden">
       {/* Dynamic Background */}
-      <div 
+      <div
         className="absolute inset-0 opacity-20"
         style={{
           background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(139, 92, 246, 0.3) 0%, transparent 50%)`
@@ -923,11 +952,11 @@ const AuthPage = () => {
             {/* Live Clock */}
             <div className="text-center opacity-80">
               <p className="text-sm">
-                {currentTime.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                {currentTime.toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}
               </p>
               <p className="text-xs">
@@ -940,11 +969,10 @@ const AuthPage = () => {
 
       {/* Status Messages */}
       {(error || success) && (
-        <div className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-2xl shadow-lg backdrop-blur-sm border max-w-sm transform transition-all duration-300 ${
-          error 
-            ? "bg-red-500/90 text-white border-red-400/50 animate-bounce" 
-            : "bg-green-500/90 text-white border-green-400/50"
-        }`}>
+        <div className={`fixed top-6 right-6 z-50 px-6 py-4 rounded-2xl shadow-lg backdrop-blur-sm border max-w-sm transform transition-all duration-300 ${error
+          ? "bg-red-500/90 text-white border-red-400/50 animate-bounce"
+          : "bg-green-500/90 text-white border-green-400/50"
+          }`}>
           <div className="flex items-center space-x-3">
             <div className="text-xl">{error ? "❌" : "✅"}</div>
             <div>
@@ -959,7 +987,7 @@ const AuthPage = () => {
       <div className="flex-1 flex items-center justify-center p-8 lg:p-16 relative">
         {/* Mobile background */}
         <div className="lg:hidden absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-purple-600/20 to-pink-600/20"></div>
-        
+
         <div className="w-full max-w-md relative z-10">
           {/* Form Container */}
           <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
@@ -978,8 +1006,8 @@ const AuthPage = () => {
                   {isLogin ? "Welcome back" : "Create your account"}
                 </h2>
                 <p className="text-slate-600">
-                  {isLogin 
-                    ? "Please sign in to continue" 
+                  {isLogin
+                    ? "Please sign in to continue"
                     : "Join our amazing community today"
                   }
                 </p>
@@ -988,10 +1016,9 @@ const AuthPage = () => {
               {/* Tab Switcher */}
               <div className="mt-8 relative">
                 <div className="flex bg-white rounded-2xl p-2 shadow-inner border border-slate-200">
-                  <div 
-                    className={`absolute top-2 bottom-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg transition-all duration-500 ease-out ${
-                      isLogin ? 'left-2 right-1/2 mr-1' : 'right-2 left-1/2 ml-1'
-                    }`}
+                  <div
+                    className={`absolute top-2 bottom-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg transition-all duration-500 ease-out ${isLogin ? 'left-2 right-1/2 mr-1' : 'right-2 left-1/2 ml-1'
+                      }`}
                   ></div>
                   <button
                     onClick={() => {
@@ -1000,9 +1027,8 @@ const AuthPage = () => {
                       setError("");
                       setSuccess("");
                     }}
-                    className={`relative flex-1 py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-300 ${
-                      isLogin ? "text-white" : "text-slate-600 hover:text-slate-800"
-                    }`}
+                    className={`relative flex-1 py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-300 ${isLogin ? "text-white" : "text-slate-600 hover:text-slate-800"
+                      }`}
                   >
                     Sign In
                   </button>
@@ -1013,9 +1039,8 @@ const AuthPage = () => {
                       setError("");
                       setSuccess("");
                     }}
-                    className={`relative flex-1 py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-300 ${
-                      !isLogin ? "text-white" : "text-slate-600 hover:text-slate-800"
-                    }`}
+                    className={`relative flex-1 py-3 px-4 text-sm font-semibold rounded-xl transition-all duration-300 ${!isLogin ? "text-white" : "text-slate-600 hover:text-slate-800"
+                      }`}
                   >
                     Sign Up
                   </button>
@@ -1028,13 +1053,12 @@ const AuthPage = () => {
                   {[1, 2, 3].map((step) => (
                     <div
                       key={step}
-                      className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-all duration-300 ${
-                        step < currentStep
-                          ? "bg-green-500 text-white"
-                          : step === currentStep
-                            ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
-                            : "bg-slate-200 text-slate-500"
-                      }`}
+                      className={`flex items-center justify-center w-8 h-8 rounded-full text-xs font-semibold transition-all duration-300 ${step < currentStep
+                        ? "bg-green-500 text-white"
+                        : step === currentStep
+                          ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white"
+                          : "bg-slate-200 text-slate-500"
+                        }`}
                     >
                       {step < currentStep ? "✓" : step}
                     </div>
@@ -1057,9 +1081,8 @@ const AuthPage = () => {
                         value={email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
                         onFocus={() => setFocusedField('email')}
-                        className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${
-                          formErrors.email ? 'border-red-300' : 'border-slate-300'
-                        }`}
+                        className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${formErrors.email ? 'border-red-300' : 'border-slate-300'
+                          }`}
                         required
                       />
                       {formErrors.email && (
@@ -1076,9 +1099,8 @@ const AuthPage = () => {
                           value={password}
                           onChange={(e) => handleInputChange('password', e.target.value)}
                           onFocus={() => setFocusedField('password')}
-                          className={`w-full px-4 py-3 pr-12 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${
-                            formErrors.password ? 'border-red-300' : 'border-slate-300'
-                          }`}
+                          className={`w-full px-4 py-3 pr-12 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-400 ${formErrors.password ? 'border-red-300' : 'border-slate-300'
+                            }`}
                           required
                         />
                         <button

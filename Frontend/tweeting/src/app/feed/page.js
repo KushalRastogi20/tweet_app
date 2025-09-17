@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/utils/axios";
 
 const Feed = () => {
   // Core State Management
@@ -177,7 +178,7 @@ const Feed = () => {
   // Fetch tweets with enhanced error handling
   const fetchTweets = useCallback(async (pageNum = 1, retryAttempt = 0) => {
     try {
-      const res = await fetch(`http://localhost:5000/auth/tweets?page=${pageNum}&limit=10`);
+      const res = await api(`/tweets/fetch?page=${pageNum}&limit=10`);
       
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -379,13 +380,10 @@ const Feed = () => {
         formData.append('audio', audioBlob, 'voice-note.webm');
       }
 
-      const res = await fetch("http://localhost:5000/auth/tweet", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const res = await api.post("/tweet/create", 
+       
+        formData,
+  );
 
       if (res.ok) {
         const { tweet } = await res.json();
