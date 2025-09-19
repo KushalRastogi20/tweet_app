@@ -32,11 +32,12 @@ export async function POST(req) {
 
         response.cookies.set("token", token, {
             httpOnly: true,
-            secure: false, // Set to true in production
-            sameSite: "lax",
+            secure: "production", // ✅ true on Vercel
+            sameSite:"production" ? "strict" : "lax",
             maxAge: 7 * 24 * 60 * 60, // 7 days
             path: "/"
         });
+
         // return NextResponse.json({ message: "Login successful" }, { status: 200 }, { data: user });
         return response; // ✅ return the modified response
 
