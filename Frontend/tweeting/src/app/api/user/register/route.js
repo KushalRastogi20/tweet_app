@@ -60,11 +60,18 @@ export async function POST(req) {
             { message: "User registered successfully", token, user: userDa },
             { status: 201 }
         );
+        // response.cookies.set("token", token, {
+        //     httpOnly: true,
+        //     secure: false, // Set to true in production
+        //     sameSite: "lax",
+        //     maxAge: 7 * 24 * 60 * 60, // 7 days
+        // });
         response.cookies.set("token", token, {
             httpOnly: true,
-            secure: false, // Set to true in production
-            sameSite: "lax",
+            secure: "production", // ✅ true on Vercel
+            sameSite:"production" ? "strict" : "lax",
             maxAge: 7 * 24 * 60 * 60, // 7 days
+            path: "/"
         });
         return response;
     }
