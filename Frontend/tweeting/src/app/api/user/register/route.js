@@ -8,7 +8,7 @@ export async function POST(req) {
     const body = await req.json();
     console.log("Request body:", body);
     //destructure the body
-    const { firstName, lastName, email, phoneNumber, dateOfBirth, password, profilePicture, gender, country, city, occupation, bio } = body;
+    const { firstName, lastName, email, phoneNumber, dateOfBirth, password,username, profilePicture, gender, country, city, occupation, bio } = body;
     console.log("Destructured data:", firstName, lastName, email)
     try {
         const connection = await connectionDB();
@@ -31,6 +31,7 @@ export async function POST(req) {
             firstName,
             lastName,
             email,
+            username,
             phoneNumber,
             dateOfBirth,
             password: hashedPassword,
